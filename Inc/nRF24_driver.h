@@ -105,6 +105,11 @@
 #define NRF24_RFSETUP_PF_PWR_m6		(uint8_t)(0b10 << 1)
 #define NRF24_RFSETUP_PF_PWR_0		(uint8_t)(0b11 << 1)
 
+#define NRF24_RFSETUP_RATE_250		(uint8_t)(1 << 5) | (uint8_t)(0 << 3)
+#define NRF24_RFSETUP_RATE_1000		(uint8_t)(0 << 5) | (uint8_t)(0 << 3)
+#define NRF24_RFSETUP_RATE_2000		(uint8_t)(0 << 5) | (uint8_t)(1 << 3)
+
+
 //STATUS (0x07) Register
 #define NRF24_STATUS_RX_DR			(uint8_t)(1 << 6)
 #define NRF24_STATUS_TX_DS			(uint8_t)(1 << 5)
@@ -143,8 +148,12 @@ private:
 
 public:
 	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
+
 	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
 	HAL_StatusTypeDef writeReg(uint8_t addr, uint8_t data);
+
+	HAL_StatusTypeDef writeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
+	HAL_StatusTypeDef readeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
 
 };
 
