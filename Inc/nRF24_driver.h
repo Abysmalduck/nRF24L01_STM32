@@ -3,27 +3,46 @@
 
 #include "main.h"
 
+#include "stdio.h"
+#include "stdlib.h"
+#include "string.h"
+
 //Registers
-#define NRF24_REG_CONFIG			0x00
-#define NRF24_REG_EN_AA				0x01
-#define NRF24_REG_EN_RXADDR			0x02
-#define NRF24_REG_SETUP_AW			0x03
-#define NRF24_REG_SETUP_PETR		0x04
-#define NRF24_REG_RF_CH				0x05
-#define NRF24_REG_RF_SETUP			0x06
-#define NRF24_REG_STATUS			0x07
-#define NRF24_REG_RX_ADDR_P0		0x0A
-#define NRF24_REG_RX_ADDR_P1		0x0B
-#define NRF24_REG_TX_ADDR			0x10
-#define NRF24_REG_RX_PW_P0			0x11
-#define NRF24_REG_RX_PW_P1			0x12
-#define NRF24_REG_FIFO_STATUS		0x17
-#define NRF24_REG_DYNPD				0x1C
-#define NRF24_REG_FEATURE			0x1D
+#define NRF24_REG_CONFIG			(uint8_t)0x00
+#define NRF24_REG_EN_AA				(uint8_t)0x01
+#define NRF24_REG_EN_RXADDR			(uint8_t)0x02
+#define NRF24_REG_SETUP_AW			(uint8_t)0x03
+#define NRF24_REG_SETUP_PETR		(uint8_t)0x04
+#define NRF24_REG_RF_CH				(uint8_t)0x05
+#define NRF24_REG_RF_SETUP			(uint8_t)0x06
+#define NRF24_REG_STATUS			(uint8_t)0x07
+#define NRF24_REG_RX_ADDR_P0		(uint8_t)0x0A
+#define NRF24_REG_RX_ADDR_P1		(uint8_t)0x0B
+#define NRF24_REG_TX_ADDR			(uint8_t)0x10
+#define NRF24_REG_RX_PW_P0			(uint8_t)0x11
+#define NRF24_REG_RX_PW_P1			(uint8_t)0x12
+#define NRF24_REG_RX_PW_P2			(uint8_t)0x13
+#define NRF24_REG_RX_PW_P3			(uint8_t)0x14
+#define NRF24_REG_RX_PW_P4			(uint8_t)0x15
+#define NRF24_REG_RX_PW_P5			(uint8_t)0x16
+#define NRF24_REG_FIFO_STATUS		(uint8_t)0x17
+#define NRF24_REG_DYNPD				(uint8_t)0x1C
+#define NRF24_REG_FEATURE			(uint8_t)0x1D
 
-#define NRF24_NOP					0xFF
 
-#define NRF24_W_REGISTER			0x20
+
+//NRF24 Commands
+#define NRF24_CMD_R_REGISTER		(uint8_t)0x00
+#define NRF24_CMD_W_REGISTER		(uint8_t)0x20
+#define NRF24_CMD_R_RX_PAYLOAD		(uint8_t)0x61
+#define NRF24_CMD_W_TX_PAYLOAD		(uint8_t)0xA0
+#define NRF24_CMD_FLUSH_TX			(uint8_t)0xE1
+#define NRF24_CMD_FLUSH_RX			(uint8_t)0xE2
+#define NRF24_CMD_REUSE_TX_PL		(uint8_t)0xE3
+#define NRF24_CMD_R_RX_PL_WID		(uint8_t)0x60
+#define NRF24_CMD_W_ACK_PAYLOAD		(uint8_t)0xA8
+#define NRF24_CMD_W_TX_PLD_NO_ACK	(uint8_t)0xB0
+#define NRF24_CMD_NOP				(uint8_t)0xFF
 
 //CONFIG (0x00) Register
 #define NRF24_CONFIG_MASK_RX_DR		(uint8_t)(1 << 6)
@@ -131,7 +150,6 @@
 #define NRF24_FEATURE_EN_ACK_PAY	(uint8_t)(1 << 1)
 #define NRF24_FEATURE_EN_DYN_ACK	(uint8_t)(1 << 0)
 
-
 struct GPIO_PIN
 {
 	GPIO_TypeDef* _gpio_type;
@@ -146,14 +164,29 @@ private:
 	GPIO_PIN* _pin_csn;
 	GPIO_PIN* _pin_ce;
 
-public:
-	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
-
 	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
 	HAL_StatusTypeDef writeReg(uint8_t addr, uint8_t data);
 
 	HAL_StatusTypeDef writeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
-	HAL_StatusTypeDef readeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
+	HAL_StatusTypeDef readBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
+
+	HAL_StatusTypeDef flushRX(void);
+	HAL_StatusTypeDef flushTX(void);
+
+	void printReg(UART_HandleTypeDef* uart, uint8_t addr, char* name);
+
+public:
+	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
+
+	HAL_StatusTypeDef sendCommand(uint8_t command);
+
+	void transmitModeSwitch(uint8_t* address, uint8_t addr_size, uint8_t channel);
+	void transmit(uint8_t* data, uint8_t size);
+
+	void receiveModeSwitch(uint8_t* address, uint8_t addr_size, uint8_t channel);
+	void receiveIT(uint8_t* data, uint8_t size);		//This void must be in EXT IT!
+
+	void printRegisters(UART_HandleTypeDef* uart);
 
 };
 
