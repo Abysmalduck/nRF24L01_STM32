@@ -150,6 +150,14 @@
 #define NRF24_FEATURE_EN_ACK_PAY	(uint8_t)(1 << 1)
 #define NRF24_FEATURE_EN_DYN_ACK	(uint8_t)(1 << 0)
 
+enum tx_status
+{
+	NRF24_UNKNOWN,
+	NRF24_TX_MAX_RT,
+	NRF24_TX_OK,
+	NRF24_TIMEOUT
+};
+
 struct GPIO_PIN
 {
 	GPIO_TypeDef* _gpio_type;
@@ -164,7 +172,10 @@ private:
 	GPIO_PIN* _pin_csn;
 	GPIO_PIN* _pin_ce;
 
-	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
+	uint32_t tick;
+
+	inline void microsecondsDelay(uint32_t delay);
+
 	HAL_StatusTypeDef writeReg(uint8_t addr, uint8_t data);
 
 	HAL_StatusTypeDef writeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
@@ -173,17 +184,33 @@ private:
 	HAL_StatusTypeDef flushRX(void);
 	HAL_StatusTypeDef flushTX(void);
 
+	HAL_StatusTypeDef sendCommand(uint8_t command);
+
 	void printReg(UART_HandleTypeDef* uart, uint8_t addr, char* name);
 
 public:
+
 	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
 
-	HAL_StatusTypeDef sendCommand(uint8_t command);
+	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
 
-	void transmitModeSwitch(uint8_t* address, uint8_t addr_size, uint8_t channel);
-	void transmit(uint8_t* data, uint8_t size);
+	void setup_crc(bool crc_en);
+	void setup_crc(bool crc_en, bool twoByteMode);
+	void setup_IRQ(bool en_RXDR, bool en_TXDS, bool en_MAXRT);
+	void setup_Addr_length(uint8_t lenght);
+	void setup_auto_ack(uint8_t ack_delay, uint8_t ack_count);
+	void setup_rf(uint8_t data_rate, uint8_t power);
+	void setup_DynamicPayload(uint8_t pipe_num, bool isEnabled);
 
-	void receiveModeSwitch(uint8_t* address, uint8_t addr_size, uint8_t channel);
+	void flushIRQ();
+
+	void transmitModeSwitch(uint8_t channel);
+	void openTXpipe(uint8_t* address, uint8_t addr_size);
+	void openRXpipe(uint8_t* address, uint8_t addr_size, uint8_t pipe_num, uint8_t payload_length);
+	tx_status transmit(uint8_t* data, uint8_t size);
+
+	void receiveModeSwitch(uint8_t channel);
+	bool isDataAvalible();
 	void receiveIT(uint8_t* data, uint8_t size);		//This void must be in EXT IT!
 
 	void printRegisters(UART_HandleTypeDef* uart);
