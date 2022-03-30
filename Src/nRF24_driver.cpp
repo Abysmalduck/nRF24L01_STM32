@@ -251,20 +251,29 @@ void nRF24::receiveIT(uint8_t* data, uint8_t size)
 	HAL_SPI_Receive(_SPI_PORT, data, size, HAL_MAX_DELAY);
 
 	HAL_GPIO_WritePin(_pin_csn->_gpio_type, _pin_csn->_gpio_num, GPIO_PIN_SET);
+
+	writeReg(NRF24_REG_STATUS, 0x70);
+
+	flushRX();
+	flushTX();
 }
 
 bool nRF24::isDataAvalible()
 {
 	uint8_t buff = 0x00;
-	readReg(NRF24_REG_FIFO_STATUS, &buff);
+	readReg(NRF24_REG_STATUS, &buff);
 
-	buff = buff & 0x03;
+	buff = buff & 0x0E;
 
-	return (!(bool)buff);
+	if (buff == 0b1110 || buff == 0b1100) return false;
+	else return true;
 }
 
 tx_status nRF24::transmit(uint8_t* data, uint8_t size)
 {
+	flushRX();
+	flushTX();
+
 	uint8_t buff = 0x0;
 	uint32_t start_time = HAL_GetTick();
 	while (true)
