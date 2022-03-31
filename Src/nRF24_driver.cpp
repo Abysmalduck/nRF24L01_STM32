@@ -137,8 +137,6 @@ nRF24::nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce)
 	_pin_ce = pin_ce;
 
 	tick = HAL_RCC_GetSysClockFreq();
-
-
 }
 
 void nRF24::init(void)
@@ -162,7 +160,6 @@ void nRF24::setup_crc(bool crc_en)
 	readReg(NRF24_REG_CONFIG, &buff);
 	buff = (buff & 0xF3) | ((uint8_t)crc_en << 3);
 	writeReg(NRF24_REG_CONFIG, buff);
-
 	return;
 }
 
@@ -172,7 +169,6 @@ void nRF24::setup_crc(bool crc_en, bool twoByteMode)
 	readReg(NRF24_REG_CONFIG, &buff);
 	buff = (buff & 0xF3) | ((uint8_t)crc_en << 3) | ((uint8_t)twoByteMode << 2);
 	writeReg(NRF24_REG_CONFIG, buff);
-
 	return;
 }
 
@@ -182,7 +178,6 @@ void nRF24::setup_IRQ(bool en_RXDR, bool en_TXDS, bool en_MAXRT)
 	readReg(NRF24_REG_CONFIG, &buff);
 	buff = (buff & 0x1F) | (uint8_t)!en_RXDR << 6 | (uint8_t)!en_TXDS << 5 | (uint8_t)!en_MAXRT << 4;
 	writeReg(NRF24_REG_CONFIG, buff);
-
 	return;
 }
 
