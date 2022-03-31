@@ -138,6 +138,11 @@ nRF24::nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce)
 
 	tick = HAL_RCC_GetSysClockFreq();
 
+
+}
+
+void nRF24::init(void)
+{
 	HAL_GPIO_WritePin(_pin_ce->_gpio_type, _pin_ce->_gpio_num, GPIO_PIN_RESET);
 	HAL_GPIO_WritePin(_pin_csn->_gpio_type, _pin_csn->_gpio_num, GPIO_PIN_SET);
 
@@ -146,8 +151,11 @@ nRF24::nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce)
 
 	writeReg(NRF24_REG_SETUP_AW, NRF24_SETUPAW_5bytes);
 	writeReg(NRF24_REG_SETUP_PETR, NRF24_SETUPPETR_ARD_1500 | NRF24_SETUPPETR_ARC_15);
-}
 
+	flushRX();
+	flushRX();
+	flushIRQ();
+}
 void nRF24::setup_crc(bool crc_en)
 {
 	uint8_t buff = 0x00;

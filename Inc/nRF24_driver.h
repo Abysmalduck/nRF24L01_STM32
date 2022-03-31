@@ -1,8 +1,7 @@
 #ifndef SRC_NRF24_DRIVER_H_
 #define SRC_NRF24_DRIVER_H_
 
-#include "main.h"
-
+#include <main.h>
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
@@ -193,6 +192,8 @@ private:
 public:
 
 	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
+
+	void init();
 
 	void setup_crc(bool crc_en);
 	void setup_crc(bool crc_en, bool twoByteMode);
