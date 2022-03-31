@@ -21,11 +21,20 @@ int main(void)
 
     nRF24 nrf1(&hspi1, nrf1_csn, nrf1_ce);
 
-    nrf1.setup_crc(true);
+    nrf1.init();
+    nrf1.setup_crc(true, true);
     nrf1.setup_IRQ(true, false, false);
     nrf1.setup_Addr_length(NRF24_SETUPAW_5bytes);
     nrf1.setup_auto_ack(NRF24_SETUPPETR_ARD_250, NRF24_SETUPPETR_ARC_15);
+
+    nrf1.setup_DynamicPayload(0, false);
     nrf1.setup_rf(NRF24_RFSETUP_RATE_250, NRF24_RFSETUP_PF_PWR_0);
+
+    uint8_t addr[5] = {0x01, 0x23, 0x45, 0x67, 0x89};
+
+    nrf1.receiveModeSwitch(76);
+    nrf1.openRXpipe(addr, 5, 0, 4);
+    nrf1.openTXpipe(addr, 5);
 
     nrf1.transmitModeSwitch(5);
 
@@ -62,24 +71,28 @@ int main(void)
 
     nRF24 nrf1(&hspi1, nrf1_csn, nrf1_ce);
 
-    nrf1.setup_crc(true);
+    nrf1.init();
+    nrf1.setup_crc(true, true);
     nrf1.setup_IRQ(true, false, false);
     nrf1.setup_Addr_length(NRF24_SETUPAW_5bytes);
     nrf1.setup_auto_ack(NRF24_SETUPPETR_ARD_250, NRF24_SETUPPETR_ARC_15);
-    nrf1.setup_rf(NRF24_RFSETUP_RATE_250, NRF24_RFSETUP_PF_PWR_0);
 
-    nrf1.receiveModeSwitch(5);
+    nrf1.setup_DynamicPayload(0, false);
+    nrf1.setup_rf(NRF24_RFSETUP_RATE_250, NRF24_RFSETUP_PF_PWR_0);
 
     uint8_t addr[5] = {0x01, 0x23, 0x45, 0x67, 0x89};
 
-    nrf1.openTXpipe(addr, 5);           //TX pipe for ACK
-    nrf1.openRXpipe(addr, 5, 0, 16);
+    nrf1.receiveModeSwitch(76);
+    nrf1.openRXpipe(addr, 5, 0, 4);
+    nrf1.openTXpipe(addr, 5);
+
+    nrf1.receiveModeSwitch(5);
 
     char data[16] = {0};
 
     while (true)
     {
-        if (isDataAvalible)
+        if (nrf1.isDataAvalible())
         {
             nrf1.receive(data, 16);
         }
