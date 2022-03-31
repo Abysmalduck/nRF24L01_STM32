@@ -176,6 +176,7 @@ private:
 
 	inline void microsecondsDelay(uint32_t delay);
 
+	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
 	HAL_StatusTypeDef writeReg(uint8_t addr, uint8_t data);
 
 	HAL_StatusTypeDef writeBuffer(uint8_t addr, uint8_t *buff, uint8_t size);
@@ -186,13 +187,12 @@ private:
 
 	HAL_StatusTypeDef sendCommand(uint8_t command);
 
+	void flushIRQ(void);
 	void printReg(UART_HandleTypeDef* uart, uint8_t addr, char* name);
 
 public:
 
 	nRF24(SPI_HandleTypeDef* SPI_PORT, GPIO_PIN* pin_csn, GPIO_PIN* pin_ce);
-
-	HAL_StatusTypeDef readReg(uint8_t addr, uint8_t* data);
 
 	void setup_crc(bool crc_en);
 	void setup_crc(bool crc_en, bool twoByteMode);
@@ -202,16 +202,15 @@ public:
 	void setup_rf(uint8_t data_rate, uint8_t power);
 	void setup_DynamicPayload(uint8_t pipe_num, bool isEnabled);
 
-	void flushIRQ();
-
+	void receiveModeSwitch(uint8_t channel);
 	void transmitModeSwitch(uint8_t channel);
 	void openTXpipe(uint8_t* address, uint8_t addr_size);
 	void openRXpipe(uint8_t* address, uint8_t addr_size, uint8_t pipe_num, uint8_t payload_length);
+	
 	tx_status transmit(uint8_t* data, uint8_t size);
-
-	void receiveModeSwitch(uint8_t channel);
+	void receive(uint8_t* data, uint8_t size);
+	
 	bool isDataAvalible();
-	void receiveIT(uint8_t* data, uint8_t size);		//This void must be in EXT IT!
 
 	void printRegisters(UART_HandleTypeDef* uart);
 
