@@ -24,7 +24,7 @@ int main(void)
     nRF24 nrf1(&hspi1, &nrf1_csn, &nrf1_ce);
 
     nrf1.init();                                                    //General module init (flush all buffers, IRQ etc.)
-    nrf1.setup_crc(true, true);                                     //Enable CRC check, 2bit mode
+    nrf1.setup_crc(true, true);                                     //Enable CRC check, 2byte mode
     nrf1.setup_IRQ(false, false, false);                            //Disable RX IRQ, TX IRQ and MRT IRQ
     nrf1.setup_Addr_length(NRF24_SETUPAW_5bytes);                   //5 bytes address length
     nrf1.setup_auto_ack(NRF24_ACK_DELAY_250, NRF24_ACK_COUNT_15);   //Send acknowledge after 250us, 15 times
@@ -68,7 +68,7 @@ int main(void)
     nRF24 nrf1(&hspi1, &nrf1_csn, &nrf1_ce);
 
     nrf1.init();                                                    //General module init (flush all buffers, IRQ etc.)
-    nrf1.setup_crc(true, true);                                     //Enable CRC check, 2bit mode
+    nrf1.setup_crc(true, true);                                     //Enable CRC check, 2byte mode
     nrf1.setup_IRQ(true, false, false);                             //Enable RX IRQ, Disable TX IRQ and MRT IRQ
     nrf1.setup_Addr_length(NRF24_ADDR_LEN_5bytes);                  //5 bytes address length
     nrf1.setup_auto_ack(NRF24_ACK_DELAY_250, NRF24_ACK_COUNT_15);   //Send acknowledge after 250us, 15 times
